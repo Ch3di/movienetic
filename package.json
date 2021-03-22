@@ -1,0 +1,31 @@
+{
+  "name": "movienetic",
+  "version": "1.0.0",
+  "description": "A RESTful API application that for consulting and storing movies",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ch3di/movienetic.git"
+  },
+  "keywords": [
+    "movie",
+    "express",
+    "node",
+    "javascript",
+    "rest",
+    "api"
+  ],
+  "author": "Chady",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ch3di/movienetic/issues"
+  },
+  "homepage": "https://github.com/Ch3di/movienetic#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "joi": "^17.4.0"
+  }
+}
