@@ -31,8 +31,8 @@ router.post("/", [auth, validate(validateReturn)], async (req, res) => {
 
 function validateReturn(req) {
   const schema = Joi.object({
-    customerId: Joi.ObjectId().required(),
-    movieId: Joi.ObjectId().required()
+    customerId: Joi.objectId().required(),
+    movieId: Joi.objectId().required()
   });
   return schema.validate(req);
 }
