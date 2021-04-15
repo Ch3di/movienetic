@@ -4,7 +4,7 @@ const { Customer, validate } = require("../models/customer");
 
 router.get("/", async (req, res) => {
   const customers = await Customer.find().sort("name");
-  res.send(customers);
+  res.send({ customers });
 });
 
 router.post("/", async (req, res) => {
@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
     isGold: req.body.isGold
   });
   customer = await customer.save();
-  return res.send(customer);
+  return res.send({ customer });
 });
 
 module.exports = router;
