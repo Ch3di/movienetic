@@ -4,7 +4,11 @@
   "description": "A RESTful API application that for consulting and storing movies",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll --verbose --coverage"
+    "test": "jest --watchAll --verbose --coverage",
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": "14.15.0"
   },
   "repository": {
     "type": "git",
@@ -26,10 +30,12 @@
   "homepage": "https://github.com/Ch3di/movienetic#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "compression": "^1.7.4",
     "config": "^3.3.6",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
     "fawn": "^2.1.5",
+    "helmet": "^4.4.1",
     "joi": "^17.4.0",
     "joi-objectid": "^3.0.1",
     "jsonwebtoken": "^8.5.1",
