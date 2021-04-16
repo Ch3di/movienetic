@@ -112,7 +112,7 @@ describe("/api/returns", () => {
     const res = await exec();
 
     const movieInDb = await Movie.findById(movie._id);
-    expect(movieInDb.numberInStock).toBe(movieInDb.numberInStock + 1);
+    expect(movieInDb.numberInStock).toBe(movie.numberInStock + 1);
   });
 
   it("should return a rental if input is valid", async () => {
@@ -120,7 +120,7 @@ describe("/api/returns", () => {
 
     const rentalInDb = await Rental.findById(rental._id);
 
-    expect(Object.keys(res.body)).toEqual(
+    expect(Object.keys(res.body.rental)).toEqual(
       expect.arrayContaining([
         "dateOut",
         "dateReturned",
