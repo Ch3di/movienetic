@@ -2,13 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { Movie, validate } = require("../models/movie");
 const { Genre } = require("../models/genre");
+const auth = require("../middlewares/auth");
 
 router.get("/", async (req, res) => {
   const movies = await Movie.find().sort("title");
   res.send({ movies });
 });
 
-router.post("/", validate, async (req, res) => {
+router.post("/", [auth, validate], async (req, res) => {
   const genre = await Genre.findById(req.body.genreId);
   if (!genre)
     return res.status(404).send({

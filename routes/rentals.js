@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const { Rental, validate } = require("../models/rental");
 const { Movie } = require("../models/movie");
 const { Customer } = require("../models/customer");
+const auth = require("../middlewares/auth");
 
 Fawn.init(mongoose);
 
@@ -13,7 +14,7 @@ router.get("/", async (req, res) => {
   res.send({ rentals });
 });
 
-router.post("/", validate, async (req, res) => {
+router.post("/", [auth, validate], async (req, res) => {
   let customer = await Customer.findById(req.body.customerId);
   if (!customer)
     return res.status(404).send({
