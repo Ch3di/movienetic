@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
+const validate = require("../middlewares/validate");
 
 const customerSchema = new mongoose.Schema({
   name: {
@@ -31,4 +32,4 @@ function validateCustomer(customer) {
 }
 
 exports.Customer = Customer;
-exports.validate = validateCustomer;
+exports.validate = validate(validateCustomer);

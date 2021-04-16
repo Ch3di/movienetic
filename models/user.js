@@ -2,6 +2,7 @@ const config = require("config");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Joi = require("joi");
+const validate = require("../middlewares/validate");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -46,4 +47,4 @@ function validateUser(user) {
 }
 
 exports.User = User;
-exports.validate = validateUser;
+exports.validate = validate(validateUser);

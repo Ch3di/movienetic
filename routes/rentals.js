@@ -13,13 +13,7 @@ router.get("/", async (req, res) => {
   res.send({ rentals });
 });
 
-router.post("/", async (req, res) => {
-  const { error } = validate(req.body);
-  if (error)
-    return res
-      .status(400)
-      .send({ error: true, message: error.details[0].message });
-
+router.post("/", validate, async (req, res) => {
   let customer = await Customer.findById(req.body.customerId);
   if (!customer)
     return res.status(404).send({
@@ -52,25 +46,19 @@ router.post("/", async (req, res) => {
       dailyRentalRate: movie.dailyRentalRate
     }
   });
-  try {
-    Fawn.Task()
-      .save("rentals", rental)
-      .update(
-        "movies",
-        { _id: movie._id },
-        {
-          $inc: {
-            numberInStock: -1
-          }
+  Fawn.Task()
+    .save("rentals", rental)
+    .update(
+      "movies",
+      { _id: movie._id },
+      {
+        $inc: {
+          numberInStock: -1
         }
-      )
-      .run();
-    return res.send(rental);
-  } catch (error) {
-    return res
-      .status(500)
-      .send({ error: true, message: "something went wrong" });
-  }
+      }
+    )
+    .run();
+  return res.send(rental);
 });
 
 module.exports = router;

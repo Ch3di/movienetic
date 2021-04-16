@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
+const validate = require("../middlewares/validate");
 
 const genreSchema = new mongoose.Schema({
   name: {
@@ -21,4 +22,4 @@ function validateGenre(genre) {
 
 exports.Genre = Genre;
 exports.genreSchema = genreSchema;
-exports.validate = validateGenre;
+exports.validate = validate(validateGenre);

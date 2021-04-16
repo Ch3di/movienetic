@@ -5,13 +5,10 @@ const { Genre } = require("../models/genre");
 
 router.get("/", async (req, res) => {
   const movies = await Movie.find().sort("title");
-  res.send(movies);
+  res.send({ movies });
 });
 
-router.post("/", async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
+router.post("/", validate, async (req, res) => {
   const genre = await Genre.findById(req.body.genreId);
   if (!genre)
     return res.status(404).send({

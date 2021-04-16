@@ -11,25 +11,13 @@ router.get("/", async (req, res) => {
   res.send({ genres });
 });
 
-router.post("/", auth, async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
+router.post("/", [auth, validate], async (req, res) => {
   let genre = new Genre({ name: req.body.name });
   genre = await genre.save();
   return res.send(genre);
 });
 
-router.put("/:id", async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).send({
-      error: true,
-      reason: "ID is not valid"
-    });
-  }
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
+router.put("/:id", [validateObjectId, validate], async (req, res) => {
   const genre = await Genre.findByIdAndUpdate(req.params.id, {
     name: req.body.name,
     new: true
@@ -43,13 +31,7 @@ router.put("/:id", async (req, res) => {
   res.send(genre);
 });
 
-router.delete("/:id", [auth, admin], async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).send({
-      error: true,
-      reason: "ID is not valid"
-    });
-  }
+router.delete("/:id", [auth, admin, validateObjectId], async (req, res) => {
   const genre = await Genre.findByIdAndDelete(req.params.id);
   if (!genre)
     return res.status(404).send({
