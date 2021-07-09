@@ -1,9 +1,9 @@
 pipeline {
-  agent any
-  // environment {
-  //   JWT_PRIVATE_KEY = credentials('movienetec-secret-key')
-  //   DB_URI = credentials('movienetec-db-uri')
-  // }
+    agent { dockerfile true }
+    environment {
+        mv_jwtPrivateKey = credentials('movienetec-secret-key')
+        mv_db = credentials('movienetec-db-uri')
+    }
   stages {
     // stage('setup environment variables') {
     //   steps {
@@ -14,17 +14,23 @@ pipeline {
     //     sh "echo $mv_db"
     //   }
     // }
-    stage('Build') {
+    stage('build-run-container') {
       steps {
-        echo 'Building..'
-        nodejs('nodejs-14.15.0') {
-          sh '''
-            set +x
-            npm install --also=dev
-          '''
-        }
+        def customImage = docker.build("movienetec:${env.BUILD_ID}")
+        customImage.run("-e mv_jwtPrivateKey=$mv_jwtPrivateKey -e mv_db=$mv_db -p 3000:3000")
       }
     }
+    // stage('Build') {
+    //   steps {
+    //     echo 'Building..'
+    //     nodejs('nodejs-14.15.0') {
+    //       sh '''
+    //         set +x
+    //         npm install --also=dev
+    //       '''
+    //     }
+    //   }
+    // }
     // stage('Test') {
     //   steps {
     //     when {
@@ -41,32 +47,24 @@ pipeline {
         echo 'deploying..'
       }
     }
-    stage('Run') {
-      steps {
-        echo 'deploying..'
-        nodejs('nodejs-14.15.0') {
-          withCredentials([string(credentialsId: 'movienetec-secret-key', variable: 'mv_jwtPrivateKey'),
-                           string(credentialsId: 'movienetec-db-uri', variable: 'mv_db')
-          ]) {
-            sh '''
-              set +x
-              export mv_jwtPrivateKey=$mv_jwtPrivateKey
-              export mv_db=$mv_db
-              echo $mv_db
-              npm start
-            '''
-          }
-        }
-      }
+    // stage('Run') {
+    //   steps {
+    //     echo 'running..'
+    //     nodejs('nodejs-14.15.0') {
+    //         sh '''
+    //           set +x
+    //           npm start
+    //         '''
+    //     }
+    //   }
+    // }
+    // stage('show-log') {
+    //   steps {
+    //     echo 'printing logs..'
+    //     sh '''
+    //       set +x
+    //       cat logfile.log
+    //     '''
+    //   }
     }
-    stage('show-log') {
-      steps {
-        echo 'printing logs..'
-        sh '''
-          set +x
-          cat logfile.log
-        '''
-      }
-    }
-  }
 }
