@@ -25,17 +25,17 @@ pipeline {
         }
       }
     }
-    stage('Test') {
-      steps {
-        when {
-          expression {
-            BRANCH_NAME == 'dev'
-          }
-        }
-        echo 'Testing...'
+    // stage('Test') {
+    //   steps {
+    //     when {
+    //       expression {
+    //         BRANCH_NAME == 'dev'
+    //       }
+    //     }
+    //     echo 'Testing...'
         
-      }
-    }
+    //   }
+    // }
     stage('Deploy') {
       steps {
         echo 'deploying..'
@@ -50,6 +50,9 @@ pipeline {
           ]) {
             sh '''
               set +x
+              export mv_jwtPrivateKey=$mv_jwtPrivateKey
+              export mv_db=$mv_db
+              echo $mv_db
               npm start
             '''
           }
