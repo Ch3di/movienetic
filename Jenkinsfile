@@ -16,8 +16,10 @@ pipeline {
     // }
     stage('build-run-container') {
       steps {
-        def customImage = docker.build("movienetec:${env.BUILD_ID}")
-        customImage.run("-e mv_jwtPrivateKey=$mv_jwtPrivateKey -e mv_db=$mv_db -p 3000:3000")
+        script {
+          def customImage = docker.build("movienetec:${env.BUILD_ID}")
+          customImage.run("-e mv_jwtPrivateKey=$mv_jwtPrivateKey -e mv_db=$mv_db -p 3000:3000")
+        }
       }
     }
     // stage('Build') {
