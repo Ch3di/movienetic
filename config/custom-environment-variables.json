@@ -1,3 +1,4 @@
 {
-  "jwtPrivateKey": "mv_jwtPrivateKey"
+  "jwtPrivateKey": "mv_jwtPrivateKey",
+  "db": "mv_db"
 }
