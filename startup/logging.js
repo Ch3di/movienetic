@@ -10,12 +10,12 @@ module.exports = function () {
     })
   );
 
-  winston.add(
-    new winston.transports.MongoDB({
-      db: "mongodb://localhost/movienetic",
-      level: "error",
-      handleExceptions: true,
-      handleRejections: true
-    })
-  );
+  // winston.add(
+  //   new winston.transports.MongoDB({
+  //     db: "mongodb://localhost/movienetic",
+  //     level: "error",
+  //     handleExceptions: true,
+  //     handleRejections: true
+  //   })
+  // );
 };
