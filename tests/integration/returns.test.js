@@ -59,7 +59,7 @@ describe("/api/returns", () => {
   it("should return 401 if the client is not logged in", async () => {
     token = "";
     const res = await exec();
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
   });
 
   it("should return 400 if the customerId is not provided", async () => {
