@@ -1,5 +1,5 @@
 pipeline {
-    agent { dockerfile true }
+    agent any
     environment {
         mv_jwtPrivateKey = credentials('movienetec-secret-key')
         mv_db = credentials('movienetec-db-uri')
