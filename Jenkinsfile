@@ -1,23 +1,19 @@
 pipeline {
-    agent any
-    environment {
-        mv_jwtPrivateKey = credentials('movienetec-secret-key')
-        mv_db = credentials('movienetec-db-uri')
-        mv_db_testing = credentials('movienetec-db-test-uri')
-        dockerRepo = "ch3di/movienetec"
-    }
+  
+  agent any
+  
+  environment {
+      MV_JWT_PRIVATE_KEY = credentials('movienetec-secret-key')
+      MV_DB_URI = credentials('movienetec-db-uri')
+      MV_DB_TEST_URI = credentials('movienetec-db-test-uri')
+      DOCKER_HUB_REPO = "ch3di/movienetec"
+  }
+
+  tools {
+    nodejs "nodejs-14.15.0"
+  }
+  
   stages {
-    // stage('setup environment variables') {
-    //   steps {
-    //     sh "export mv_jwtPrivateKey=${JWT_PRIVATE_KEY}"
-    //     sh "export mv_db=${DB_URI}"
-    //     sh "export test=testing"
-    //     sh "echo $test"
-    //     sh "echo $mv_db"
-    //   }
-    // }
-
-
     stage('Test') {
       when {
         expression {
@@ -25,89 +21,59 @@ pipeline {
         }
       }
       steps {
-        sh "mv_db=$mv_db_testing"
-        echo 'Testing...'
-        nodejs('nodejs-14.15.0') {
-          sh '''
-            set +x
-            npm install --also=dev
-            npm run test
-          '''
-        }
-
+        echo 'Installing dependencies and running tests...'
+        sh "mv_db=$MV_DB_TEST_URI" 
+        sh '''
+          npm install --also=dev
+          npm run test
+        '''
       }
     }
 
-    stage('build-container') {
+    stage('Build Docker Image') {
       when {
         expression {
           env.BRANCH_NAME == 'master'
         }
       }
       steps {
+        echo 'Building Docker image...'
         sh "docker build -t movienetec:${env.BUILD_ID} ."
       }
     }
-    stage('run-container') {
-      when {
-        expression {
-          env.BRANCH_NAME == 'master'
-        }
-      }
-        steps {
-            sh "docker run -d -p 3000:3000 -e mv_jwtPrivateKey=$mv_jwtPrivateKey -e mv_db=$mv_db movienetec:${env.BUILD_ID}"
-        }
-    }
-    stage('push-container-to-docker-hub') {
+
+    stage('Run The Built Docker Image') {
       when {
         expression {
           env.BRANCH_NAME == 'master'
         }
       }
       steps {
-        sh "docker tag movienetec:${env.BUILD_ID} $dockerRepo:${env.BUILD_ID}"
+          echo 'Running Docker container...'
+          sh "docker run -d -p 3000:3000 -e mv_jwtPrivateKey=$MV_JWT_PRIVATE_KEY -e mv_db=$MV_DB_URI movienetec:${env.BUILD_ID}"
+      }
+    }
+
+    stage('Push The Docker Image in DockerHub') {
+      when {
+        expression {
+          env.BRANCH_NAME == 'master'
+        }
+      }
+      steps {
+        echO 'login to DockerHub and push the image'
+        sh "docker tag movienetec:${env.BUILD_ID} $DOCKER_HUB_REPO:${env.BUILD_ID}"
         withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
           sh "echo $PASSWORD | docker login -u $USER --password-stdin"
-          sh "docker push $dockerRepo:${env.BUILD_ID}"
+          sh "docker push $DOCKER_HUB_REPO:${env.BUILD_ID}"
         }
       }
     }
-    // stage('Build') {
-    //   steps {
-    //     echo 'Building..'
-    //     nodejs('nodejs-14.15.0') {
-    //       sh '''
-    //         set +x
-    //         npm install --also=dev
-    //       '''
-    //     }
-    //   }
-    // }
-
 
     stage('Deploy') {
       steps {
         echo 'deploying..'
       }
     }
-    // stage('Run') {
-    //   steps {
-    //     echo 'running..'
-    //     nodejs('nodejs-14.15.0') {
-    //         sh '''
-    //           set +x
-    //           npm start
-    //         '''
-    //     }
-    //   }
-    // }
-    // stage('show-log') {
-    //   steps {
-    //     echo 'printing logs..'
-    //     sh '''
-    //       set +x
-    //       cat logfile.log
-    //     '''
-    //   }
-    }
+  }
 }
