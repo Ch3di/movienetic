@@ -3,6 +3,8 @@ pipeline {
     environment {
         mv_jwtPrivateKey = credentials('movienetec-secret-key')
         mv_db = credentials('movienetec-db-uri')
+        mv_db_testing = credentials('movienetec-db-test-uri')
+        dockerRepo = "ch3di/movienetec"
     }
   stages {
     // stage('setup environment variables') {
@@ -14,11 +16,59 @@ pipeline {
     //     sh "echo $mv_db"
     //   }
     // }
-    stage('build-run-container') {
+
+
+    stage('Test') {
+      when {
+        expression {
+          env.BRANCH_NAME == 'dev'
+        }
+      }
       steps {
-        script {
-          def customImage = docker.build("movienetec:${env.BUILD_ID}")
-          customImage.run("-e mv_jwtPrivateKey=$mv_jwtPrivateKey -e mv_db=$mv_db -p 3000:3000")
+        sh "mv_db=$mv_db_testing"
+        echo 'Testing...'
+        nodejs('nodejs-14.15.0') {
+          sh '''
+            set +x
+            npm install --also=dev
+            npm run test
+          '''
+        }
+
+      }
+    }
+
+    stage('build-container') {
+      when {
+        expression {
+          env.BRANCH_NAME == 'master'
+        }
+      }
+      steps {
+        sh "docker build -t movienetec:${env.BUILD_ID} ."
+      }
+    }
+    stage('run-container') {
+      when {
+        expression {
+          env.BRANCH_NAME == 'master'
+        }
+      }
+        steps {
+            sh "docker run -d -p 3000:3000 -e mv_jwtPrivateKey=$mv_jwtPrivateKey -e mv_db=$mv_db movienetec:${env.BUILD_ID}"
+        }
+    }
+    stage('push-container-to-docker-hub') {
+      when {
+        expression {
+          env.BRANCH_NAME == 'master'
+        }
+      }
+      steps {
+        sh "docker tag movienetec:${env.BUILD_ID} $dockerRepo:${env.BUILD_ID}"
+        withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
+          sh "echo $PASSWORD | docker login -u $USER --password-stdin"
+          sh "docker push $dockerRepo:${env.BUILD_ID}"
         }
       }
     }
@@ -33,17 +83,8 @@ pipeline {
     //     }
     //   }
     // }
-    // stage('Test') {
-    //   steps {
-    //     when {
-    //       expression {
-    //         BRANCH_NAME == 'dev'
-    //       }
-    //     }
-    //     echo 'Testing...'
-        
-    //   }
-    // }
+
+
     stage('Deploy') {
       steps {
         echo 'deploying..'
