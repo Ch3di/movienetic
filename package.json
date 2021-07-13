@@ -4,7 +4,7 @@
   "description": "A RESTful API application that for consulting and storing movies",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll --verbose --coverage --detectOpenHandles",
+    "test": "jest --verbose --coverage --detectOpenHandles --forceExit",
     "start": "node index.js"
   },
   "engines": {
