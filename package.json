@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose --coverage --detectOpenHandles --forceExit",
-    "start": "node index.js"
+    "start": "node index.js",
+    "version": "node -e console.log(require('./package.json').version);"
   },
   "engines": {
     "node": "14.15.0"
