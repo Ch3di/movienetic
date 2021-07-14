@@ -22,8 +22,9 @@ pipeline {
       }
       steps {
         echo 'Installing dependencies and running tests...'
-        sh "mv_db=$MV_DB_TEST_URI" 
         sh '''
+          export mv_jwtPrivateKey=${MV_JWT_PRIVATE_KEY}
+          export mv_db=${MV_DB_TEST_URI}
           npm install --also=dev
           npm run test
         '''
