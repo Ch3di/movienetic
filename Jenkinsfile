@@ -7,6 +7,7 @@ pipeline {
       MV_DB_URI = credentials('movienetec-db-uri')
       MV_DB_TEST_URI = credentials('movienetec-db-test-uri')
       DOCKER_HUB_REPO = "ch3di/movienetec"
+      NEW_VERSION = ""
   }
 
   tools {
@@ -29,6 +30,20 @@ pipeline {
           npm run test
         '''
       }
+    }
+
+    stage('Increment Version') {
+      steps {
+        echo 'Incrementing the version of the project...'
+        script {
+             NEW_VERSION = sh (
+                  script: 'npm version patch --no-git-tag-version',
+                  returnStdout: true
+             ).trim()
+             echo "version: ${NEW_VERSION}"
+        }
+      }
+
     }
 
     stage('Build Docker Image') {
@@ -62,7 +77,7 @@ pipeline {
         }
       }
       steps {
-        echO 'login to DockerHub and push the image'
+        echo 'login to DockerHub and push the image'
         sh "docker tag movienetec:${env.BUILD_ID} $DOCKER_HUB_REPO:${env.BUILD_ID}"
         withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
           sh "echo $PASSWORD | docker login -u $USER --password-stdin"
@@ -74,6 +89,27 @@ pipeline {
     stage('Deploy') {
       steps {
         echo 'deploying..'
+      }
+    }
+
+    stage('Commit Version Update') {
+      steps {
+        script {
+          withCredentials([usernamePassword(credentialsId: 'github-cred', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
+            sh 'git config user.email "jenkins@example.com"'
+            sh 'git config user.name "jenkins"'
+
+            sh 'git status'
+            sh 'git branch'
+            sh 'git config --list'
+
+            sh "git remote set-url origin https://${USER}:${PASSWORD}@github.com/Ch3di/movienetic.git"
+            sh 'git add .'
+            sh 'git commit -m "CI: bump version"'
+            sh 'git push origin HEAD:dev'
+
+          }
+        }
       }
     }
   }
