@@ -35,6 +35,7 @@ pipeline {
     stage('Increment Version') {
       steps {
         echo 'Incrementing the version of the project...'
+        sh "git checkout ${env.BRANCH_NAME}"
         script {
              NEW_VERSION = sh (
                   script: 'npm version patch --no-git-tag-version',
@@ -96,16 +97,16 @@ pipeline {
       steps {
         script {
           withCredentials([usernamePassword(credentialsId: 'github-cred', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
-            sh 'git config user.email "jenkins@example.com"'
-            sh 'git config user.name "jenkins"'
+            sh 'git config --global user.email "jenkins@example.com"'
+            sh 'git config --global user.name "jenkins"'
 
             sh 'git status'
             sh 'git branch'
             sh 'git config --list'
 
-            sh "git remote set-url origin https://${USER}:${PASSWORD}@github.com/Ch3di/movienetic.git"
+            sh "git remote set-url origin 'https://${USER}:${PASSWORD}@github.com/Ch3di/movienetic.git'"
             sh 'git add .'
-            sh 'git commit -m "CI: bump version"'
+            sh "git commit -m 'CI: bump version'"
             sh 'git push origin HEAD:dev'
 
           }
