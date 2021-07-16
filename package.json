@@ -1,6 +1,6 @@
 {
   "name": "movienetic",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A RESTful API application that for consulting and storing movies",
   "main": "index.js",
   "scripts": {
